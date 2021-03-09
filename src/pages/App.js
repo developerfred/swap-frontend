@@ -95,7 +95,7 @@ export default function App() {
 
 
   useEffect(() => {
-    const loadPrices = async () => {
+    const loadPrices = async() => {
       if (swapContract) {
         const usdRate = await swapContract.dittoUSDRate();
         setUsdDittoRate(ethers.utils.formatUnits(usdRate.toString(), 3));
@@ -122,15 +122,15 @@ export default function App() {
   }, [availableTokens]);
 
   useEffect(() => {
-    const checkAllowance = async () => {
+    const checkAllowance = async() => {
       if (selectedToken) {
         const approveAllowance = ethers.utils.formatUnits(await selectedToken.tokenContract.allowance(address, swapContract.address), selectedToken.decimals);
-        setApprovedAllowanceAmount(approveAllowance)
+        setApprovedAllowanceAmount(approveAllowance);
       }
-    }
+    };
     checkAllowance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedToken])
+  }, [selectedToken]);
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -143,7 +143,7 @@ export default function App() {
     setSelectedToken(event.target.value);
   };
 
-  const calculateOutputAmount = async (inputAmount) => {
+  const calculateOutputAmount = async(inputAmount) => {
     if (swapState === 'approvingSwap' || 'swapApproved') {
       setSwapState('initial');
     }
@@ -160,7 +160,7 @@ export default function App() {
 
   const handleInputAmount = debounce((inputAmount) => calculateOutputAmount(inputAmount), 500);
 
-  const approveSwap = async () => {
+  const approveSwap = async() => {
     const formattedInputTokenAmount = ethers.utils.formatUnits(inputTokenAmount, selectedToken.decimals);
     if (parseFloat(formattedInputTokenAmount) > 0) {
       // const amountApproved = ethers.utils.parseUnits(`${ethers.utils.formatUnits(inputTokenAmount, selectedToken.decimals)}.0`, selectedToken.decimals);
@@ -172,23 +172,23 @@ export default function App() {
         if (approvedAllowanceAmount < parseFloat(formattedInputTokenAmount)) {
           const approveAllowanceTx = await selectedToken.tokenContract.approve(swapContract.address, amountToApprove);
           await approveAllowanceTx.wait();
-        } 
+        }
         setSwapState('swapApproved');
       } catch (error) {
-        console.log(error)
+        console.log(error);
         setSwapState('error');
       }
     }
   };
 
-  const swap = async () => {
+  const swap = async() => {
     try {
       setSwapState('swapLoading');
       const swapTx = await swapContract.swap(selectedToken.address, inputTokenAmount);
       await swapTx.wait();
       setSwapState('swapComplete');
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setSwapState('error');
     }
 
@@ -215,17 +215,6 @@ export default function App() {
           </div>
           <ArrowDownwardIcon color="secondary" style={{ marginTop: 30, fontSize: 50 }} />
           <div className={classes.recieveInput}>
-            {dittoRemainingForUser &&
-            <div className={classes.availableBalanceCaption}>
-              <Tooltip title="Amount of DITTO you can still receive in this swap until the per user cap is reached." aria-label="Amount of DITTO you can still receive in this swap until the per user cap is reached." placement="top" interactive>
-                  <InfoIcon color="secondary" style={{ fontSize: 20, paddingRight: 5 }} />
-              </Tooltip>
-              <Typography variant="caption" >
-                DITTO remaining for user:&nbsp;&nbsp;{`${dittoRemainingForUser}`}
-              </Typography>
-            </div>
-            }
-
             <TokenOutputField loading={loading} dittoOutputAmount={dittoOutputAmount} />
           </div>
           <div className={classes.swapButton}>
@@ -233,7 +222,6 @@ export default function App() {
           </div>
         </form>
         <div className={classes.dittoLeft}>
-          <Typography variant="caption">Total DITTO left: {totalDittoRemaining} </Typography>
           <Tooltip title="Total amount of DITTO still available for the incentivized swaps. DITTO is allocated on a first-come, first serve basis." aria-label="Total amount of DITTO still available for the incentivized swaps. DITTO is allocated on a first-come, first serve basis." placement="bottom" interactive>
             <InfoIcon color="secondary" style={{ fontSize: 20, paddingLeft: 5 }} />
           </Tooltip>
